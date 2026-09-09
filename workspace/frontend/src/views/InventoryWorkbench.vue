@@ -406,14 +406,14 @@ async function saveRow(index) {
 .page-title {
   font-size: 20px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0f172a;
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.title-icon { color: #38bdf8; font-size: 22px; }
-.page-subtitle { font-size: 12px; color: #475569; }
-.page-actions { display: flex; align-items: center; gap: 10px; }
+.title-icon    { color: #0284c7; font-size: 22px; }
+.page-subtitle { font-size: 12px; color: #94a3b8; }
+.page-actions  { display: flex; align-items: center; gap: 10px; }
 
 /* ── Stats Bar ──────────────────────────────────────────────── */
 .stats-bar {
@@ -422,67 +422,119 @@ async function saveRow(index) {
   flex-shrink: 0;
 }
 .stat-card {
-  background: #1e293b;
-  border: 1px solid #2d3f56;
-  border-radius: 8px;
-  padding: 10px 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 2px solid #e2e8f0;   /* thicker top — overridden per accent below */
+  border-radius: 10px;
+  padding: 11px 20px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 110px;
+  gap: 5px;
+  min-width: 120px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
-.stat-label { font-size: 11px; color: #64748b; letter-spacing: 0.5px; }
-.stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.accent-green  { color: #4ade80; }
-.accent-yellow { color: #fbbf24; }
-.accent-red    { color: #f87171; }
-.accent-blue   { color: #60a5fa; }
-.accent-purple { color: #c084fc; }
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+  border-color: #bae6fd;
+}
+.stat-label {
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.6px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+.accent-green  { color: #16a34a; }
+.accent-yellow { color: #d97706; }
+.accent-red    { color: #dc2626; }
+.accent-blue   { color: #0284c7; }
+.accent-purple { color: #7c3aed; }
 
 /* ── Table Wrapper ──────────────────────────────────────────── */
 .table-wrapper {
   flex: 1;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid #1e3a5f;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* ── Table Cell Styles ──────────────────────────────────────── */
-.cell-id      { color: #475569; font-size: 12px; }
-.sku-code     {
+.cell-id { color: #94a3b8; font-size: 12px; }
+.sku-code {
   font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   font-size: 12px;
-  color: #38bdf8;
-  background: rgba(56,189,248,0.08);
+  color: #0284c7;
+  background: #eff6ff;
   padding: 2px 6px;
   border-radius: 4px;
 }
-.product-name { color: #e2e8f0; font-weight: 500; }
-.cell-price   { color: #4ade80; font-weight: 600; font-variant-numeric: tabular-nums; }
-.cell-stock   { color: #94a3b8; font-variant-numeric: tabular-nums; }
-.stock-zero   { color: #f87171; font-weight: 700; }
-.stock-low    { color: #fbbf24; font-weight: 600; }
-.cell-version { color: #475569; font-size: 11px; }
-.cell-time    { color: #475569; font-size: 12px; font-variant-numeric: tabular-nums; }
-.col-tip      { margin-left: 4px; color: #475569; cursor: help; }
+.product-name { color: #1e293b; font-weight: 500; }
+
+/* Price: deep green, monospace */
+.cell-price {
+  color: #15803d;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+/* Stock: monospace for column alignment */
+.cell-stock {
+  color: #475569;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+}
+.stock-zero { color: #dc2626; font-weight: 700; }
+.stock-low  { color: #d97706; font-weight: 600; }
+
+/* Version + time: muted monospace */
+.cell-version {
+  color: #94a3b8;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+.cell-time {
+  color: #94a3b8;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+.col-tip { margin-left: 4px; color: #94a3b8; cursor: help; }
 
 /* ── Price Input ────────────────────────────────────────────── */
+/* Idle: white bg, light border */
 .price-input :deep(.el-input__wrapper) {
-  background: rgba(56,189,248,0.05);
-  border: 1px solid #2d4a6b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   box-shadow: none !important;
-  transition: border-color 0.2s;
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
-.price-input :deep(.el-input__wrapper:hover),
+/* Hover */
+.price-input :deep(.el-input__wrapper:hover) {
+  border-color: #7dd3fc !important;
+}
+/* Focus: sky-blue border + subtle glow */
 .price-input :deep(.el-input__wrapper.is-focus) {
-  border-color: #38bdf8 !important;
-  background: rgba(56,189,248,0.1);
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
 }
+/* Input text: indigo, monospace, right-aligned */
 .price-input :deep(input) {
-  color: #facc15;
+  color: #1d4ed8;
   font-weight: 600;
   text-align: right;
-  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3px;
 }
 
 /* ── Keyboard Footer ────────────────────────────────────────── */
@@ -491,47 +543,62 @@ async function saveRow(index) {
   display: flex;
   gap: 20px;
   padding: 8px 0 10px;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid #e2e8f0;
 }
-.kb-hint { font-size: 12px; color: #475569; display: flex; align-items: center; gap: 5px; }
+.kb-hint { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 5px; }
 kbd {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-bottom: 2px solid #cbd5e1;
   border-radius: 4px;
   padding: 2px 7px;
   font-size: 11px;
-  color: #94a3b8;
+  color: #475569;
   font-family: inherit;
 }
 </style>
 
-<!-- Global (unscoped) Element Plus table dark theme overrides -->
+<!-- Global: Element Plus table light-theme overrides -->
 <style>
 .inventory-table {
-  --el-table-bg-color: #0f172a;
-  --el-table-tr-bg-color: #0f172a;
-  --el-table-row-hover-bg-color: #1a2744;
-  --el-table-header-bg-color: #0b1829;
-  --el-table-border-color: #1e3a5f;
-  --el-table-text-color: #94a3b8;
-  --el-table-header-text-color: #64748b;
-  --el-fill-color-lighter: #0f172a;
-  background: #0f172a;
+  --el-table-bg-color:           #ffffff;
+  --el-table-tr-bg-color:        #ffffff;
+  --el-table-row-hover-bg-color: #f8fafc;
+  --el-table-header-bg-color:    #f8fafc;
+  --el-table-border-color:       #e2e8f0;
+  --el-table-text-color:         #374151;
+  --el-table-header-text-color:  #6b7280;
+  --el-fill-color-lighter:       #f8fafc;
+  background: #ffffff;
 }
+/* Tighter row height */
+.inventory-table .el-table__cell {
+  padding: 5px 0 !important;
+}
+/* Row status tints */
 .inventory-table .el-table__body tr.row-out-of-stock td {
-  background: rgba(248, 113, 113, 0.04) !important;
+  background: #fef2f2 !important;
 }
 .inventory-table .el-table__body tr.row-low-stock td {
-  background: rgba(251, 191, 36, 0.04) !important;
+  background: #fffbeb !important;
 }
+/* Stripe */
 .inventory-table .el-table__stripe .el-table__body tr.el-table__row--striped td {
-  background: rgba(255,255,255,0.02) !important;
+  background: #f9fafb !important;
 }
+/* Header */
 .inventory-table th.el-table__cell {
-  background: #0b1829 !important;
-  color: #475569 !important;
+  background: #f8fafc !important;
+  color: #6b7280 !important;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+/* Loading overlay bg for light theme */
+.table-wrapper .el-loading-mask {
+  background: rgba(248, 250, 252, 0.85) !important;
 }
 </style>
+

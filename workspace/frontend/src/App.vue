@@ -9,7 +9,7 @@
         <span class="brand-sub">资产管理平台</span>
       </div>
       <div class="topbar-right">
-        <el-tag type="success" effect="dark" size="small">运行中</el-tag>
+        <el-tag type="success" effect="light" size="small">运行中</el-tag>
         <span class="topbar-time">{{ currentTime }}</span>
       </div>
     </header>
@@ -20,9 +20,9 @@
         <el-menu
           :default-active="activeMenu"
           class="sidebar-menu"
-          background-color="#0f172a"
-          text-color="#94a3b8"
-          active-text-color="#38bdf8"
+          background-color="#ffffff"
+          text-color="#374151"
+          active-text-color="#0284c7"
           @select="activeMenu = $event"
         >
           <div class="menu-section-label">核心功能</div>
@@ -87,8 +87,8 @@ onUnmounted(() => clearInterval(timer))
 
 body {
   font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  background: #0b1120;
-  color: #e2e8f0;
+  background: #f1f5f9;
+  color: #1e293b;
   height: 100vh;
   overflow: hidden;
 }
@@ -101,8 +101,9 @@ body {
 /* ── Top Bar ────────────────────────────────────────────────── */
 .topbar {
   height: 52px;
-  background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
-  border-bottom: 1px solid #1e3a5f;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,27 +111,23 @@ body {
   flex-shrink: 0;
   z-index: 100;
 }
-.topbar-brand { display: flex; align-items: center; gap: 10px; }
-.brand-icon   { font-size: 22px; color: #38bdf8; }
-.brand-name   { font-size: 16px; font-weight: 700; color: #f1f5f9; letter-spacing: 0.5px; }
-.brand-divider{ color: #334155; font-size: 18px; }
-.brand-sub    { font-size: 13px; color: #64748b; }
-.topbar-right { display: flex; align-items: center; gap: 16px; }
-.topbar-time  { font-size: 13px; color: #64748b; font-variant-numeric: tabular-nums; }
+.topbar-brand  { display: flex; align-items: center; gap: 10px; }
+.brand-icon    { font-size: 22px; color: #0284c7; }
+.brand-name    { font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: 0.3px; }
+.brand-divider { color: #e2e8f0; font-size: 18px; }
+.brand-sub     { font-size: 13px; color: #94a3b8; }
+.topbar-right  { display: flex; align-items: center; gap: 16px; }
+.topbar-time   { font-size: 13px; color: #94a3b8; font-variant-numeric: tabular-nums; }
 
 /* ── Main Layout ────────────────────────────────────────────── */
-.main-layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
+.main-layout { display: flex; flex: 1; overflow: hidden; }
 
 /* ── Sidebar ────────────────────────────────────────────────── */
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #0f172a;
-  border-right: 1px solid #1e293b;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -138,17 +135,17 @@ body {
 .sidebar-menu { border-right: none !important; flex: 1; }
 .menu-section-label {
   font-size: 10px;
-  font-weight: 600;
-  color: #475569;
-  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   padding: 20px 20px 6px;
 }
 .sidebar-footer {
   padding: 16px 20px;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid #f1f5f9;
 }
-.sidebar-version { font-size: 11px; color: #475569; }
+.sidebar-version { font-size: 11px; color: #94a3b8; }
 
 /* ── Content Area ───────────────────────────────────────────── */
 .content-area {
@@ -156,9 +153,8 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #0b1120;
+  background: #f1f5f9;
 }
-
 .placeholder-page {
   display: flex;
   align-items: center;
@@ -166,12 +162,19 @@ body {
   height: 100%;
 }
 
-/* ── Element Plus overrides ─────────────────────────────────── */
+/* ── Element Plus menu overrides (light theme) ──────────────── */
 .el-menu-item.is-active {
-  background: rgba(56, 189, 248, 0.08) !important;
-  border-right: 2px solid #38bdf8;
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-left: 3px solid #0284c7 !important;
+  padding-left: 17px !important;
+  color: #0284c7 !important;
 }
-.el-menu-item:hover {
-  background: rgba(255,255,255,0.04) !important;
+.el-menu-item:not(.is-disabled):hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+.el-menu-item.is-disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
 }
 </style>

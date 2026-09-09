@@ -107,13 +107,14 @@ try {
 }
 
 // Flatten all test results
+// In Playwright 1.45 JSON format:
+//   suite → suite → spec { title, ok (boolean), tests[] }
+// The authoritative pass/fail is spec.ok – not test.ok (which is undefined).
 const allTests = [];
 function collectTests(suites) {
   for (const suite of (suites || [])) {
     for (const spec of (suite.specs || [])) {
-      for (const test of (spec.tests || [])) {
-        allTests.push({ title: spec.title, status: test.status, ok: test.ok });
-      }
+      allTests.push({ title: spec.title, ok: spec.ok === true });
     }
     collectTests(suite.suites);
   }

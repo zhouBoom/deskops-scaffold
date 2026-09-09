@@ -1,0 +1,52 @@
+{
+  "task_id": "task_pc_inventory_001",
+  "rubric_version": "1.3.0",
+  "timestamp": "2026-09-09T07:17:12.000Z",
+  "total_score": 10,
+  "max_score": 10,
+  "passing_score": 5,
+  "gate_passed": true,
+  "overall_passed": true,
+  "item_scores": {
+    "gate_render": {
+      "title": "T1",
+      "gate": true,
+      "max_score": 2,
+      "earned": 2,
+      "passed": true,
+      "status": "passed"
+    },
+    "non_gate_tab": {
+      "title": "T2",
+      "gate": false,
+      "max_score": 2,
+      "earned": 2,
+      "passed": true,
+      "status": "passed"
+    },
+    "gate_persist": {
+      "title": "T3/T4/T5",
+      "gate": true,
+      "max_score": 3,
+      "earned": 3,
+      "passed": true,
+      "status": "passed"
+    },
+    "non_gate_esc": {
+      "title": "T6",
+      "gate": false,
+      "max_score": 2,
+      "earned": 2,
+      "passed": true,
+      "status": "passed"
+    },
+    "non_gate_track": {
+      "title": "T7",
+      "gate": false,
+      "max_score": 1,
+      "earned": 1,
+      "passed": true,
+      "status": "passed"
+    }
+  }
+}

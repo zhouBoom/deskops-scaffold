@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────
+#  Harbor Coding Benchmark · Task Manifest (spec v1.3)
+# ─────────────────────────────────────────────────────────────────
+
+task_id    = "task_pc_inventory_001"
+title      = "资产库存调价工作台 – PC 桌面端键盘交互与事务完整性"
+version    = "1.0.0"
+difficulty = "L2"
+timeout    = 300          # 单次评测最大秒数（含服务启动 + 测试执行）
+
+tags = [
+  "PC-Desktop",
+  "High-Density-Table",
+  "Keyboard-Focus",
+  "Transactional-Integrity",
+]
+
+focus_points = [
+  "Tab键焦点流转与防跳出",
+  "Esc撤销与状态回滚",
+  "Enter保存穿透与F5持久化",
+  "SQLite整数分更新",
+]
+
+# ── 评分配置（与 rubric.yaml 对齐）──────────────────────────────
+[scoring]
+total_score  = 10
+passing_score = 5
+gate_items   = ["gate_render", "gate_persist"]   # Gate 项全过才可及格
+
+# ── 运行时约束 ───────────────────────────────────────────────────
+[runtime]
+network      = "none"           # 容器以 --network none 运行
+entry        = "tests/test.sh"  # 唯一改卷入口
+viewport     = "1920x1080"
+db_engine    = "better-sqlite3"
+price_unit   = "cents_integer"  # 金额存储单位：整数分
+
+# ── 服务端口 ────────────────────────────────────────────────────
+[services]
+backend_port  = 3000
+frontend_port = 5173

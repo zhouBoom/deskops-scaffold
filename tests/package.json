@@ -1,0 +1,17 @@
+{
+  "name": "harbor-benchmark-tests",
+  "version": "1.0.0",
+  "description": "Harbor Coding Benchmark – Playwright E2E test suite",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:report": "npx playwright show-report"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.45.0",
+    "better-sqlite3": "^9.4.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

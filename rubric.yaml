@@ -1,0 +1,114 @@
+# ─────────────────────────────────────────────────────────────────
+#  rubric.yaml – Harbor Benchmark Scoring Rubric (spec v1.3)
+#  task_id : task_pc_inventory_001
+#
+#  Mapped 1-to-1 with tests/e2e/specs/workbench.spec.js
+#  Gate items must ALL pass for total_score to count toward "passed"
+# ─────────────────────────────────────────────────────────────────
+
+meta:
+  task_id:       "task_pc_inventory_001"
+  rubric_version: "1.3.0"
+  total_score:    10
+  passing_score:  5
+  gate_items:
+    - gate_render
+    - gate_persist
+
+items:
+
+  # ── Gate: 表格渲染 ───────────────────────────────────────────────
+  - id:          gate_render
+    type:        gate           # Gate 项：不通过则整体强制 FAIL
+    score:       2
+    title:       "DOM 表格渲染 ≥ 15 行"
+    description: >
+      打开工作台页面后，Element Plus 表格的 tbody 中必须渲染出
+      不少于 15 条真实数据行。
+    spec_ref:    "workbench.spec.js > T1"
+    assertion:   "expect(rows).toHaveCount(15)"
+    evidence:
+      - type: dom_count
+        selector: ".el-table__body tbody tr"
+        expected: 15
+        operator: ">="
+
+  # ── Non-gate: Tab 键 activeElement 流转 ─────────────────────────
+  - id:          non_gate_tab
+    type:        non_gate
+    score:       2
+    title:       "Tab 键焦点流转至下一行输入框"
+    description: >
+      在 #price-input-0 聚焦后按 Tab，document.activeElement.id
+      必须精确变为 "price-input-1"，同时浏览器默认 Tab 行为被阻止。
+    spec_ref:    "workbench.spec.js > T2"
+    assertion:   "expect(activeId).toBe('price-input-1')"
+    evidence:
+      - type: active_element
+        after_action: "Tab"
+        expected_id: "price-input-1"
+
+  # ── Gate: Enter 保存 + F5 持久化 + SQLite 直连 ──────────────────
+  - id:          gate_persist
+    type:        gate           # Gate 项：数据完整性是核心硬指标
+    score:       3
+    title:       "Enter 保存 → Toast → F5 刷新持久化 → SQLite 直连校验"
+    description: >
+      按 Enter 后：
+        ① 成功 Toast 出现且包含新价格文字；
+        ② page.reload() 后 DOM 价格输入框值与现价列均反映新价格；
+        ③ 直连 app.db 查询 price（整数分）与 version（自增 +1）均正确。
+    spec_ref:    "workbench.spec.js > T3/T4/T5"
+    sub_assertions:
+      - id: toast_visible
+        desc: "成功 Toast 可见"
+        assertion: "expect(toast).toBeVisible()"
+      - id: dom_persist
+        desc: "F5 刷新后 DOM 价格正确"
+        assertion: "expect(inputAfterReload).toHaveValue(centsToYuan(NEW_PRICE_CENTS))"
+      - id: db_price
+        desc: "SQLite price 字段为整数分"
+        assertion: "expect(dbRow.price).toBe(NEW_PRICE_CENTS)"
+      - id: db_version
+        desc: "SQLite version 字段自增 +1"
+        assertion: "expect(dbRow.version).toBe(versionBefore + 1)"
+    evidence:
+      - type: http_request
+        method: POST
+        path: "/api/inventory/update-price"
+        expected_status: 200
+      - type: sqlite_direct
+        table: inventory
+        fields: [price, version]
+
+  # ── Non-gate: Esc 撤销编辑 ──────────────────────────────────────
+  - id:          non_gate_esc
+    type:        non_gate
+    score:       2
+    title:       "Esc 键撤销价格编辑并恢复初态"
+    description: >
+      在价格输入框中键入新值后按 Esc，输入框内容必须恢复为
+      进入编辑前记录的原始价格字符串，输入框随即失焦。
+    spec_ref:    "workbench.spec.js > T6"
+    assertion:   "expect(priceInput).toHaveValue(originalValue)"
+    evidence:
+      - type: input_value
+        selector: "#price-input-0"
+        after_action: "Escape"
+        expected: "original_value"
+
+  # ── Non-gate: data-testid activeElement 追踪 ────────────────────
+  - id:          non_gate_track
+    type:        non_gate
+    score:       1
+    title:       "data-testid activeElement 精确追踪"
+    description: >
+      直接点击 #price-input-3 后，document.activeElement.id
+      必须精确等于 "price-input-3"，证明 data-testid 与 id 绑定
+      在任意行均可靠工作。
+    spec_ref:    "workbench.spec.js > T7"
+    assertion:   "expect(activeId).toBe('price-input-3')"
+    evidence:
+      - type: active_element
+        after_action: "click"
+        expected_id: "price-input-3"

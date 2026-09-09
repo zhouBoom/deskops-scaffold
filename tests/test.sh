@@ -13,7 +13,10 @@
 set -euo pipefail
 
 # ── Paths ───────────────────────────────────────────────────────────
-APP_DIR="${APP_DIR:-/app}"
+# 动态计算根目录，兼容本地 Mac 与 Docker 容器
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="${APP_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+
 TESTS_DIR="$APP_DIR/tests"
 REPORT_JSON="/tmp/playwright_report.json"
 RESULT_JSON="$APP_DIR/rubric_result.json"
@@ -28,22 +31,7 @@ _ok()   { echo -e "${GREEN}[PASS]${NC} $*"; }
 _fail() { echo -e "${RED}[FAIL]${NC} $*"; }
 _warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 
-# ── Rubric metadata ─────────────────────────────────────────────────
-# Must stay in sync with rubric.yaml
-declare -A ITEM_SCORES=( [gate_render]=2 [non_gate_tab]=2 [gate_persist]=3 [non_gate_esc]=2 [non_gate_track]=1 )
-declare -A ITEM_GATES=(  [gate_render]=1 [gate_persist]=1 )   # 1 = is a gate item
-TOTAL_MAX=10
 PASSING_SCORE=5
-
-# Mapping: Playwright test title substring → rubric item id
-# Order matters – first match wins
-declare -A TITLE_MAP=(
-  ["T1"]="gate_render"
-  ["T2"]="non_gate_tab"
-  ["T3/T4/T5"]="gate_persist"
-  ["T6"]="non_gate_esc"
-  ["T7"]="non_gate_track"
-)
 
 # ════════════════════════════════════════════════════════════════════
 #  STEP 1 – Bootstrap (DB reset + service start + health probe)
@@ -55,7 +43,6 @@ if [ ! -x "$BOOTSTRAP" ]; then
   exit 1
 fi
 
-# Run bootstrap; it blocks until both services are healthy or exits 1
 "$BOOTSTRAP"
 _ok "Services are healthy."
 
@@ -66,12 +53,17 @@ _log "Step 2 – Running Playwright test suite …"
 
 cd "$TESTS_DIR"
 
-# Run with --reporter=json; capture exit code without set -e killing us
-npx --no-install playwright test \
+# 运行 playwright；优先使用本地 bin 路径，兼容断网与无全局包环境
+PLAYWRIGHT_BIN="./node_modules/.bin/playwright"
+if [ ! -x "$PLAYWRIGHT_BIN" ]; then
+  PLAYWRIGHT_BIN="npx --no-install playwright"
+fi
+
+PLAYWRIGHT_EXIT=0
+$PLAYWRIGHT_BIN test \
     --reporter=json \
     2>/dev/null > "$REPORT_JSON" || PLAYWRIGHT_EXIT=$?
 
-PLAYWRIGHT_EXIT="${PLAYWRIGHT_EXIT:-0}"
 _log "Playwright process exited with code: $PLAYWRIGHT_EXIT"
 
 # ════════════════════════════════════════════════════════════════════
@@ -98,18 +90,19 @@ const RUBRIC = [
 ];
 
 // ── Parse Playwright JSON report ────────────────────────────────
-let report;
+let report = { suites: [] };
 try {
-  report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  const raw = fs.readFileSync(reportPath, 'utf8');
+  const jsonStart = raw.indexOf('{');
+  if (jsonStart !== -1) {
+    report = JSON.parse(raw.slice(jsonStart));
+  }
 } catch (e) {
   console.error('[scorer] Cannot read/parse report:', e.message);
   process.exit(2);
 }
 
 // Flatten all test results
-// In Playwright 1.45 JSON format:
-//   suite → suite → spec { title, ok (boolean), tests[] }
-// The authoritative pass/fail is spec.ok – not test.ok (which is undefined).
 const allTests = [];
 function collectTests(suites) {
   for (const suite of (suites || [])) {
@@ -132,12 +125,12 @@ for (const item of RUBRIC) {
   itemPassed[item.id]  = passed;
   itemScores[item.id]  = passed ? item.score : 0;
   itemDetails[item.id] = {
-    title:   item.match,
-    gate:    item.gate,
+    title:     item.match,
+    gate:      item.gate,
     max_score: item.score,
-    earned:  passed ? item.score : 0,
+    earned:    passed ? item.score : 0,
     passed,
-    status:  matched ? matched.status : 'not_found',
+    status:    matched ? (matched.ok ? 'passed' : 'failed') : 'not_found',
   };
 }
 
@@ -161,7 +154,6 @@ const result = {
 };
 
 fs.writeFileSync(resultPath, JSON.stringify(result, null, 2));
-console.log(JSON.stringify(result, null, 2));
 NODE_SCRIPT
 
 SCORER_EXIT=$?
@@ -177,7 +169,6 @@ echo -e "${BOLD}  Harbor Benchmark · Scoring Summary${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 if [ -f "$RESULT_JSON" ]; then
-  # Print each item
   node -e "
     const r = require('$RESULT_JSON');
     for (const [id, item] of Object.entries(r.item_scores)) {

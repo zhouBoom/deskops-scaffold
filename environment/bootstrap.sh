@@ -8,14 +8,18 @@
 # ─────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-APP_DIR="/app"
+# 自动推导项目根目录：支持本地 Mac 任意路径运行，同时兼容容器内 APP_DIR 覆盖
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="${APP_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+
 BACKEND_DIR="$APP_DIR/workspace/backend"
 FRONTEND_DIR="$APP_DIR/workspace/frontend"
 
-LOG_BACKEND="$APP_DIR/logs/backend.log"
-LOG_FRONTEND="$APP_DIR/logs/frontend.log"
+LOG_DIR="$APP_DIR/logs"
+LOG_BACKEND="$LOG_DIR/backend.log"
+LOG_FRONTEND="$LOG_DIR/frontend.log"
 
-mkdir -p "$APP_DIR/logs"
+mkdir -p "$LOG_DIR"
 
 # ── Step 1: Reset database ───────────────────────────────────────
 echo "[bootstrap] Resetting app.db from seed.db …"
@@ -32,7 +36,8 @@ echo "[bootstrap] Backend PID: $BACKEND_PID"
 # ── Step 3: Start frontend preview ──────────────────────────────
 echo "[bootstrap] Starting Vite preview on port 5173 …"
 cd "$FRONTEND_DIR"
-npx --no-install vite preview \
+# 使用本地 node_modules 二进制，规避 npx 解析行为差异
+./node_modules/.bin/vite preview \
     --port 5173 \
     --host 0.0.0.0 \
     --outDir dist > "$LOG_FRONTEND" 2>&1 &
@@ -64,6 +69,10 @@ echo "[bootstrap] All services ready. Benchmark environment is UP."
 echo "  Backend  → http://0.0.0.0:3000"
 echo "  Frontend → http://0.0.0.0:5173"
 
-# Keep process alive (CMD mode)
-# If launched as CMD in Docker, keep the container running
-wait $BACKEND_PID $FRONTEND_PID
+# ── Step 5: Process management ───────────────────────────────────
+# 如果显式传入 FOREGROUND=1 参数（如作为常驻容器的 CMD 启动时），挂起进程
+# 供 test.sh 调用时保持非阻塞退出（exit 0），测试进程方可接管
+if [ "${FOREGROUND:-0}" = "1" ]; then
+  echo "[bootstrap] FOREGROUND=1 set. Keeping process alive …"
+  wait $BACKEND_PID $FRONTEND_PID
+fi
